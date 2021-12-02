@@ -5,18 +5,30 @@ from helpers.import_data import ImportData
 class Submarine:
     def __init__(self, dataset):
         self.dataset = np.array(dataset)
-        self.horizontal_position = 0
-        self.depth = 0
+        self.resetPosition()
     
-    def moveFromInstructions(self):
+    def moveFromInstructions(self, include_aim=False):
         for instruction in self.dataset:
             direction, spaces = self.__readInstruction(instruction)
             if direction == 'forward':
                 self.horizontal_position += spaces
+                if include_aim == True:
+                    self.depth += self.aim * spaces
             elif direction == 'down':
-                self.depth += spaces
+                if include_aim == True:
+                    self.aim += spaces 
+                else:
+                    self.depth += spaces
             elif direction == 'up':
-                self.depth -= spaces
+                if include_aim == True:
+                    self.aim -= spaces 
+                else:
+                    self.depth -= spaces
+
+    def resetPosition(self):
+        self.horizontal_position = 0
+        self.depth = 0
+        self.aim = 0
 
     def __readInstruction(self, instruction):
         instruction_array = instruction.split()
@@ -27,4 +39,9 @@ if __name__ == "__main__":
 
     submarine = Submarine(data_file.dataset)
     submarine.moveFromInstructions()
-    print("horizontal: ", submarine.horizontal_position, "depth: ", submarine.depth, "multiply: ", submarine.horizontal_position * submarine.depth)
+    print("Part1: horizontal: ", submarine.horizontal_position, "depth: ", submarine.depth, "multiply: ", submarine.horizontal_position * submarine.depth)
+
+    submarine.resetPosition()
+    submarine.moveFromInstructions(True)
+    print("Part1: horizontal: ", submarine.horizontal_position, "depth: ", submarine.depth, "multiply: ", submarine.horizontal_position * submarine.depth)
+
