@@ -40,15 +40,38 @@ class PowerThing:
                 oxygen_value = 1
             else:
                 oxygen_value = values[np.argmax(counts)]
-            dataset = self.__remove_from_dataset(dataset, index, oxygen_value)
-        print(dataset)
+            dataset = self.__filter_dataset(dataset, index, oxygen_value)
+            if len(dataset) <= 1:
+                break
+
+        self.oxygen = self.__convertBinaryToDecimal(dataset[0])
+        print('Calculated Oxygen: ', self.oxygen)
+
+    def calculateCoDos(self):
+        dataset = self.dataset.copy()
+        for index in range(len(self.dataset[0])):
+            bits_in_index_position = self.__getBitsOnPosition(dataset, index) 
+            values, counts = self.__countBits(bits_in_index_position)
+            if counts[0] == counts[1]:
+                co_2_value = 0
+            else:
+                co_2_value = values[np.argmin(counts)]
+            dataset = self.__filter_dataset(dataset, index, co_2_value)
+            if len(dataset) <= 1:
+                break
+
+        self.co_dos = self.__convertBinaryToDecimal(dataset[0])
+        print('Calculated CO dos: ', self.co_dos)
 
     def calculatePowerConsumption(self):
         print("Power Consumption: ", self.gamma * self.epsilon)
 
+    def calculateLifeSupportRating(self):
+        print("Life Support Rating: ", self.oxygen * self.co_dos)
+
     def __getBitsOnPosition(self, dataset, index):
         binary_array = []
-        for bits in self.dataset:
+        for bits in dataset:
             binary_array.append(int(bits[index]))
         return np.array(binary_array)
 
@@ -58,8 +81,12 @@ class PowerThing:
     def __countBits(self, array):
         return np.unique(array, return_counts=True)
 
-    def __remove_from_dataset(self, dataset, index, value):
-        return np.delete(dataset, np.where(dataset != value))
+    def __filter_dataset(self, dataset, index, value):
+        filtered_dataset = []
+        for data in dataset:
+            if data[index] == str(value):
+                filtered_dataset.append(data)
+        return filtered_dataset
 
 if __name__ == "__main__":
     data_file = ImportData("day_3.data", False)
@@ -68,4 +95,7 @@ if __name__ == "__main__":
     power.calculateEpsilonRate()
     power.calculatePowerConsumption()
     power.calculateOxygen()
+    power.calculateCoDos()
+    power.calculateLifeSupportRating()
+
     
