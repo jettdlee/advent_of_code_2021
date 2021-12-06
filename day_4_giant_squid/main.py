@@ -28,16 +28,24 @@ class BingoGame:
     def __init__(self, bingo_parser):
         self.number_draw = bingo_parser.draw
         self.game_boards = bingo_parser.boards
-        self.winning_board = None
         self.check_winner = CheckWinner()
+        self.reset()
 
-    def play(self):
+    def reset(self):
+        self.winning_board = None
+        self.winning_order = []
+
+    def play(self, squid_hax=False):
+        last_drawn_number = 0
         for drawn_number in self.number_draw:
+            last_drawn_number = drawn_number
             self.__markBoard(drawn_number)
             self.__checkWinner()
             if self.winning_board is not None:
-                self.__calculateWinnings(drawn_number)
-                break
+                if squid_hax == False or len(self.winning_order) == len(self.game_boards):
+                    break
+
+        self.__calculateWinnings(last_drawn_number)
 
     def __markBoard(self, number):
         for board_index in range(len(self.game_boards)):
@@ -48,10 +56,11 @@ class BingoGame:
                     self.game_boards[board_index][row_index][in_row_index] = -1
 
     def __checkWinner(self):
-        for board in self.game_boards:
+        for index, board in enumerate(self.game_boards):
             result = self.check_winner.check(board)
-            if result == True:
+            if result == True and index not in self.winning_order:
                 self.winning_board = board
+                self.winning_order.append(index)
     
     def __calculateWinnings(self, winning_number):
         sum_unmarked_numbers = 0
@@ -91,3 +100,6 @@ if __name__ == "__main__":
     parser = BingoParser(data_file.dataset)
     game = BingoGame(parser)
     game.play()
+
+    game.reset()
+    game.play(True)
