@@ -20,14 +20,15 @@ class FishCounter:
 
     def countFish(self, days):
         fish_array = []
-        for day in range(days +1):
+        for lifespan in self.dataset:
+            fish_array.append(LanternFish(lifespan))
+
+        for day in range(days):
             for fish in fish_array:
                 new_fish = fish.decrementDay()
                 if new_fish is not None:
                     fish_array.append(new_fish)
 
-            lifespan = self.dataset[day]
-            fish_array.append(LanternFish(lifespan))
         print(len(fish_array))
 
 if __name__ == "__main__":
