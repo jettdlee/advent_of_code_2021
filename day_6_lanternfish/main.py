@@ -24,10 +24,12 @@ class FishCounter:
             fish_array.append(LanternFish(lifespan))
 
         for day in range(days):
+            new_fishes = []
             for fish in fish_array:
                 new_fish = fish.decrementDay()
                 if new_fish is not None:
-                    fish_array.append(new_fish)
+                    new_fishes.append(new_fish)
+            fish_array.extend(new_fishes)
 
         print(len(fish_array))
 
