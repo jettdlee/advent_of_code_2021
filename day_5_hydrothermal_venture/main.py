@@ -21,11 +21,14 @@ class HydrothermalMap:
     def __init__(self, parser, map_size=1000):
         self.coordinates = parser.ranges
         self.map_size = map_size
+        self.reset()
+
+    def reset(self):
         self.__instantiateMap()
 
-    def plotLines(self):
+    def plotLines(self, skip_diagonal=True):
         for line in self.coordinates:
-            if self.__is_line_diagonal(line):
+            if skip_diagonal == True and self.__is_line_diagonal(line):
                 continue
             self.__plotOnMap(line)
 
@@ -33,7 +36,7 @@ class HydrothermalMap:
         count = 0
         for row in self.hydrothermal_map:
             count += len(np.where(np.array(row) > 1)[0])
-        print(count)
+        print('Overlap count: ', count)
 
     def __instantiateMap(self):
         self.hydrothermal_map = []
@@ -51,10 +54,17 @@ class HydrothermalMap:
             increment = self.__getIncrement(start_position['y'], end_position['y'])
             for y_axis in range(start_position['y'], end_position['y'] + increment, increment):
                 self.hydrothermal_map[x_axis][y_axis] += 1
-        else:
+        elif start_position['y'] == end_position['y']:
             y_axis = start_position['y']
             increment = self.__getIncrement(start_position['x'], end_position['x'])
             for x_axis in range(start_position['x'], end_position['x'] + increment, increment):
+                self.hydrothermal_map[x_axis][y_axis] += 1
+        else:
+            x_increment = self.__getIncrement(start_position['x'], end_position['x'])
+            x_range = range(start_position['x'], end_position['x'] + x_increment, x_increment)
+            y_increment = self.__getIncrement(start_position['y'], end_position['y'])
+            y_range = range(start_position['y'], end_position['y'] + y_increment, y_increment)
+            for x_axis, y_axis in zip(x_range, y_range):
                 self.hydrothermal_map[x_axis][y_axis] += 1
 
     def __getIncrement(self, start, end):
@@ -67,5 +77,12 @@ if __name__ == "__main__":
     data_file = ImportData('day5.data')
     parser = HydrothermalParser(data_file.dataset)
     hydro_map = HydrothermalMap(parser)
+    print('Ignoring diagonal')
     hydro_map.plotLines()
+    hydro_map.countOverlap()
+
+
+    print('Include diagonal')
+    hydro_map.reset()
+    hydro_map.plotLines(False)
     hydro_map.countOverlap()
