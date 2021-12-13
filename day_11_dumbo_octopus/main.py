@@ -31,9 +31,31 @@ class Grid:
             self.__incrementAllOctopus()
             flash_positions = self.__checkAllFlashes()
             flash_count += len(flash_positions)
-            octopus_state = self.__resetOctopusEnergy()
+            self.__resetOctopusEnergy()
 
         print(flash_count)
+
+    def firstSynchronousFlash(self):
+        self.current_state = self.__setupOctopus()
+        step = 0
+        print(self.__printState(self.current_state))
+        while True:
+            step += 1
+            self.__incrementAllOctopus()
+            flash_positions = self.__checkAllFlashes()
+            self.__resetOctopusEnergy()
+            if self.__checkSynchronisation():
+                break
+                
+        print(self.__printState(self.current_state))
+        print(step)
+
+    def __checkSynchronisation(self):
+        sum = 0
+        for row in self.current_state:
+            for octopus in row:
+                sum += octopus.energy
+        return sum == 0
 
     def __incrementAllOctopus(self):
         for row in self.current_state:
@@ -90,3 +112,4 @@ if __name__ == "__main__":
     # data_file = ImportData('test.data')
     grid = Grid(data_file.dataset)
     grid.countFlashesForSteps(100)
+    grid.firstSynchronousFlash()
