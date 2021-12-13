@@ -17,7 +17,7 @@ class Octopus:
 
     def reset(self):
         if self.energy > 9:
-            self.energy -= 10;
+            self.energy = 0;
 
 class Grid:
     def __init__(self, dataset):
@@ -26,53 +26,47 @@ class Grid:
 
     def countFlashesForSteps(self, steps):
         flash_count = 0
-        octopus_state = self.octopus_grid.copy()
+        self.current_state = self.octopus_grid.copy()
         for step in range(steps):
-            octopus_state = self.__incrementAllOctopus(octopus_state)
-            octopus_state, flash_positions = self.__checkAllFlashes(octopus_state)
+            self.__incrementAllOctopus()
+            flash_positions = self.__checkAllFlashes()
             flash_count += len(flash_positions)
-            octopus_state = self.__resetOctopusEnergy(octopus_state)
+            octopus_state = self.__resetOctopusEnergy()
+
         print(flash_count)
 
-    def __incrementAllOctopus(self, octopus_state):
-        state = octopus_state.copy()
-        for row in state:
+    def __incrementAllOctopus(self):
+        for row in self.current_state:
             for octopus in row:
                 octopus.increment()
-        return state
 
-    def __checkAllFlashes(self, octopus_state):
-        state = octopus_state.copy()
+    def __checkAllFlashes(self):
         no_more_flashes = False
         flash_positions = []
         while no_more_flashes == False:
             no_more_flashes = True
-            for i, row in enumerate(state):
+            for i, row in enumerate(self.current_state):
                 for j, octopus in enumerate(row):
                     if octopus.flash() and [i, j] not in flash_positions:
                         no_more_flashes = False
                         flash_positions.append([i, j])
-                        state = self.__incrementSurroundingOctopus(i, j, state)
+                        self.__incrementSurroundingOctopus(i, j)
 
-        return state, flash_positions
+        return flash_positions
 
-    def __resetOctopusEnergy(self, octopus_state):
-        state = octopus_state.copy()
-        for row in state:
+    def __resetOctopusEnergy(self):
+        for row in self.current_state:
             for octopus in row:
                 octopus.reset()
-        return state
 
-    def __incrementSurroundingOctopus(self, x, y, octopus_state):
-        state = octopus_state.copy()
+    def __incrementSurroundingOctopus(self, x, y):
         positions = [[x-1, y-1], [x-1,y], [x-1, y+1], [x, y-1], [x, y+1], [x+1, y-1], [x+1,y], [x+1, y+1]]
+        max_octo = len(self.current_state[0]) - 1
         for i, j in positions:
-            try:
-                octopus = state[i, j]
-                octopus.increment()
-            except:
+            if i < 0 or i > max_octo or j < 0 or j > max_octo:
                 continue
-        return state
+            octopus = self.current_state[i][j]
+            octopus.increment()
 
     def __setupOctopus(self):
         array = []
@@ -83,7 +77,16 @@ class Grid:
             array.append(row_array)
         return array
 
+    def __printState(self, state):
+        for row in state:
+            row_energy = []
+            for octopus in row:
+                row_energy.append(octopus.energy)
+            print(row_energy)
+        print('-----------------------')
+
 if __name__ == "__main__":
     data_file = ImportData('day_11.data')
+    # data_file = ImportData('test.data')
     grid = Grid(data_file.dataset)
     grid.countFlashesForSteps(100)
