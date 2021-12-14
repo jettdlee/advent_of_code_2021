@@ -7,16 +7,21 @@ class Sensor:
         self.dataset = dataset
         self.cave_map = self.__constructMap()
 
-    def getAllPaths(self):
-        all_paths_found = False
-        paths = []
-        while all_paths_found == False:
-            position = 'start'
+    def getAllRoutes(self):
+        all_routes_found = False
+        finished_routes = []
+        current_route = ['start']
+        self.getPosition('start', [])
 
+    def getPosition(self, current_position, current_route):
+        if current_position == 'end':
+            finished_route.append(current_route.copy())
+        else:
+            for neighbour in self.cave_map[current_position]:
+                if not(neighbour in current_route and neighbour.islower()):
+                    self.getPosition(neighbour, current_route)
 
-
-
-
+        current_route.pop()
 
 
     def __constructMap(self):
@@ -34,5 +39,6 @@ class Sensor:
         return map_dict
 
 if __name__ == "__main__":
-    data_file = ImportData('test1.data')
+    data_file = ImportData('test3.data')
     sensor = Sensor(data_file.dataset)
+    sensor.getAllRoutes()
